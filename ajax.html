@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+</head>
+<script type="template" id="gl">
+    <div>
+        <span>Total Confirmed :</span><%= confirm%><br>
+        <span>Total Death :</span><%= death%><br>
+        <span>Total Recovered :</span><%= recover%><br>
+    </div>
+</script>
+
+<script type="template" id="count">
+    <table class="table">
+        <tr>
+            <th>Country</th>
+            <th>TotalDeaths</th>
+            <th>TotalConfirmed</th>
+            <th>TotalRecovered</th>
+        </tr>
+
+       <% _.each(data,function(i){ %>
+            <% if(i.TotalConfirmed>1000){%>  
+                <tr>
+                    <% if(i.TotalDeaths>100){%>
+                        <td style="color:red">      
+                            <%= i.Country %>
+                        </td>
+                    <% }else{ %>
+                        <td style="color:green">     
+                            <%= i.Country %>
+                        </td>
+                    <% }%>
+
+                    <td> <%= i.TotalDeaths %> </td>
+                    <td> <%= i.TotalConfirmed %> </td>
+                    <td> <%= i.TotalRecovered %> </td>
+                </tr>
+            <% }%>    
+        <% }) %>
+
+
+    </table>    
+</script>
+
+<script type="text/javascript">
+$(document).ready(()=>{
+    $(".btn").on("click",()=>{
+        url="https://api.covid19api.com/summary"
+        $.ajax({
+            url: url,
+            method: "get",
+            beforeSend: ()=>{
+                $(".global").html("<h3>Loading....</h3>")
+            },
+            success:(e)=>{
+                console.log(e)
+
+                var overview = _.template($('#gl').html())
+                var all = _.template($('#count').html())
+                $(".global").html(overview({'confirm':e.Global.TotalConfirmed,"death":e.Global.TotalDeaths,"recover":e.Global.TotalRecovered}))
+                $(".data").html(all({'data':e.Countries}))
+            }
+        })
+    })
+})
+</script>
+<body>
+    <h1>This is Data of Coronavirus</h2>
+    <input type="button" class="btn" value="Get Data" style="background-color: blue" />
+    <div class="global">
+
+    </div>
+    <div class="data">
+
+    </div>
+</body>
+</html>
